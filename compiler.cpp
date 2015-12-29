@@ -670,11 +670,14 @@ void syntax_analysis(vector<IDwords> &AnalysisResults)
 		exit(13);
 	}
 	it++;
-	//获取变量声明
-    add_var_table(it);
     //获取代码段的操作
 	while(it != AnalysisResults.end())
 	{
+		if(it->id == K_TYPE)
+		{
+		     //获取变量声明
+			 add_var_table(it);
+		 } 
 		//遇到printf
 		if(it->word == "printf")
 		{
