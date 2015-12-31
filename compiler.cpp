@@ -56,6 +56,9 @@ string  asmfile(string source)
 	if(source.size()==0)
 	{
 		cout<<"源文件名不能为空"<<endl;
+		getchar();
+		getchar();
+
 		exit(-1);
 	}
 	string temp="";
@@ -149,6 +152,8 @@ int word_token(string s)
 		else
 		{
 			cout<<"错误的字符串数据："<<s<<endl;
+			getchar();
+			getchar();
 			exit(1);
 		}
 	}
@@ -160,6 +165,8 @@ int word_token(string s)
 		else
 		{
             cout<<"错误的字符串数据："<<s<<endl;
+            getchar();
+			getchar();
 			exit(2);
 		}
 	}
@@ -171,6 +178,8 @@ int word_token(string s)
 			if(!isdigit(s[i]))
 			{
 				cout<<"不合法的标识符："<<s<<endl;
+				getchar();
+			    getchar();
 				exit(3);
 			}
 		}
@@ -183,6 +192,8 @@ int word_token(string s)
 			if(!isalnum(s[i]) && s[i]!='_'&&s[i]!='&')
 			{
                 cout<<"不合法的标识符："<<s<<endl;
+                getchar();
+			    getchar();
 				exit(4);
 			}
 		}
@@ -217,6 +228,8 @@ void lexical_analysis(string source,vector<IDwords> &AnalysisResults)
 	if(!rfile.is_open())
 	{
 		cout<<"无法打开源文件"<<endl;
+		getchar();
+		getchar();
 		exit(5);
 	}
 
@@ -257,7 +270,7 @@ void lexical_analysis(string source,vector<IDwords> &AnalysisResults)
 				}
 				else
 				{
-					add_keywords(AnalysisResults,K_OPERATOR,char_to_str(ch));//不是注释的话，这就是除法 
+					add_keywords(AnalysisResults,K_OPERATOR,char_to_str(ch));//不是注释的话，就是main了。 
 					ch = try_ch;  //继续状态1
 				}
 			}
@@ -303,6 +316,8 @@ void lexical_analysis(string source,vector<IDwords> &AnalysisResults)
 					else
 					{
 						cout<<"不合法的标识符："+temp<<endl;
+						 getchar();
+			             getchar();
 						exit(6);
 					}
 				}
@@ -508,7 +523,7 @@ void printf_analysis(vector<IDwords>::iterator &it)
 			i = j+2;//到下一个%的位置，如果有的话
 			it = it+2;  //跳过逗号，获取对应变量
 			strvar = it->word;//保存值
-            add_target_code(strvar,"p"," "," ",str.substr(j,2)," ");//mask为%d、%c等
+            add_target_code(strvar,"p"," "," ",str.substr(j,2)," ");//mark为%d、%c等
 			j = i;
 			continue;
 		}
@@ -516,7 +531,7 @@ void printf_analysis(vector<IDwords>::iterator &it)
 	}
 	if(i!=j)//没有%时
 	{
-		vab = vab+1;//vab是一个全局变量
+		vab = vab+1;
 		if(vab == 91)
 			vab = '0';
 		add_target_code("\'"+str.substr(i,j-i)+"$\'","p"," "," ","tmp"+char_to_str(vab)," ");//从i开始，取j-1个字符，因为i=1，j=size-1.即将首位的""略去了
@@ -533,7 +548,7 @@ void scanf_analysis(vector<IDwords>::iterator &it)//scanf("%d",&a);MOV AH 07;INT
 	it = it + 2;//跳过‘(’
 	string str = it->word; //获取输入格式
 	string strvar;         //获取输入存储的变量名
-
+    string mmark; 
 	Variable       tmp;
 	//分析输入内容及格式
 	for (j = 1; j < str.size() - 1;)//因为字符被""包围着，所以从1开始
@@ -542,11 +557,14 @@ void scanf_analysis(vector<IDwords>::iterator &it)//scanf("%d",&a);MOV AH 07;INT
 		{
 			it += 2;//到&变量名处
 			cout << "scanf:" + it->word.substr(1, it->word.size() - 1) << endl;
-			add_target_code(it->word.substr(1, it->word.size() - 1), "s", " ", " ", " ", " ");
+			mmark=char_to_str(str[j])+char_to_str(str[j+1]); 
+			add_target_code(it->word.substr(1, it->word.size() - 1), "s", " ", " ", mmark, " ");
 			break;
 		}
 		if (str[j] != '%' || str[j] != '\"'){
 			cout << "错误的scanf" << endl;
+			getchar();
+			getchar();
 			exit(7);
 		}
 	}
@@ -560,6 +578,8 @@ void if_analysis(vector<IDwords>::iterator &it)
 	if(it->word != "(")
 	{
 		cout<<"错误的if语句：缺少'('"<<endl;
+		getchar();
+	    getchar();
 		exit(8);
 	}
 	it++;
@@ -575,6 +595,8 @@ void if_analysis(vector<IDwords>::iterator &it)
 	if(it->word != ")")
 	{
 		cout<<"错误的if条件语句：缺少')'"<<endl;
+        getchar();
+	    getchar();
 		exit(9);
 	}
 	it++; //略过‘{’
@@ -622,6 +644,8 @@ void while_analysis(vector<IDwords>::iterator &it)
 	if(it->word != "(")
 	{
 		cout<<"错误的while语句：缺少'('"<<endl;
+		getchar();
+	    getchar();
 		exit(10);
 	}
 	it++;
@@ -637,6 +661,8 @@ void while_analysis(vector<IDwords>::iterator &it)
 	if(it->word != ")")
 	{
 		cout<<"错误的if条件语句：缺少')'"<<endl;
+        getchar();
+	    getchar();
 		exit(11);
 	}
 	it++; //略过‘{’
@@ -649,7 +675,7 @@ void while_analysis(vector<IDwords>::iterator &it)
 		it++;
 	}
 	lab=lab+2;
-	 add_target_code(" ","jmp"," "," "," ","step"+char_to_str(lab-2));
+ 	 add_target_code(" ","jmp"," "," "," ","step"+char_to_str(lab-2));
 	add_target_code(" ","wstep"," "," "," ","step"+char_to_str(lab));//stepC
    
     
@@ -661,12 +687,16 @@ void syntax_analysis(vector<IDwords> &AnalysisResults)
     if(it->word != "main")
 	{
 		cout<<"缺少main"<<endl;
+		getchar();
+        getchar();
 		exit(12);
 	}
 	it = it+3; //跳过“（）”
 	if(it->word != "{")
 	{
 		cout<<"main函数缺少'{'"<<endl;
+		getchar();
+		getchar();
 		exit(13);
 	}
 	it++;
@@ -769,56 +799,73 @@ void sign_asm(ofstream &out,string dsf,string dst)
 //输出转换
 void print_asm(ofstream &out,string dsf,string mark)
 {
-	//以字符格式输出
-	if(mark=="%c")
-	{
-		out<<"    mov DL,"<<dsf<<endl;
-		out<<"    mov AH,02H"<<endl;
-		out<<"    int 21H"<<endl;
-	}
-	//以整数格式输出
-	else if(mark=="%d")
-	{
-		out<<"    mov AL,"<<dsf<<endl;
-		out<<"    CBW"<<endl;
-		out<<"    mov BL,10"<<endl;
-		out<<"    DIV BL"<<endl;
-		out<<"    mov BH,AH"<<endl;
-		out<<"    add BH,30H"<<endl;
-		out<<"    add AL,30H"<<endl;
-		out<<"    CMP AL,48"<<endl;
-		//确定十位是否是0
-		lab = lab + 2;
-		string step2 = "step" + char_to_str(lab);
-		out<<"    JE "<<step2<<endl;
+//以字符格式输出
+if(mark=="%c")
+{
+out<<"    mov DL,"<<dsf<<endl;
+out<<"    mov AH,02H"<<endl;
+out<<"    int 21H"<<endl;
+}
+//以整数格式输出
+else if(mark=="%d")
+{
+out<<"    mov AL,"<<dsf<<endl;
+out<<"    CBW"<<endl;
+out<<"    mov BL,10"<<endl;
+out<<"    DIV BL"<<endl;
+out<<"    mov BH,AH"<<endl;
+out<<"    add BH,30H"<<endl;
+out<<"    add AL,30H"<<endl;
+out<<"    CMP AL,48"<<endl;
+//确定十位是否是0
+lab = lab + 2;
+string step2 = "step" + char_to_str(lab);
+out<<"    JE "<<step2<<endl;
         string step1 = "step" + char_to_str(lab-1);
-		out<<"  "<<step1<<":"<<endl;
-		out<<"    mov DL,AL"<<endl;
-		out<<"    mov AH,2"<<endl;
-		out<<"    int 21H"<<endl;
+out<<"  "<<step1<<":"<<endl;
+out<<"    mov DL,AL"<<endl;
+out<<"    mov AH,2"<<endl;
+out<<"    int 21H"<<endl;
 
-		//输出个位
-		out<<"  "<<step2<<":"<<endl;
-		out<<"    mov DL,BH"<<endl;
-		out<<"    mov AH,2"<<endl;
-		out<<"    int 21H"<<endl;
-	}
-	//字符串输出
-	else
-	{
-		out<<"    LEA DX,"<<mark<<endl;
-		out<<"    mov AH,09"<<endl;
-		out<<"    int 21H"<<endl;
-	}
+//输出个位
+out<<"  "<<step2<<":"<<endl;
+out<<"    mov DL,BH"<<endl;
+out<<"    mov AH,2"<<endl;
+out<<"    int 21H"<<endl;
+}
+//字符串输出
+else
+{
+out <<"     mov AH,02"<<endl;
+out <<"     mov DL,0aH"<<endl;
+out <<"     INT 21H"<<endl;
+out<<"    LEA DX,"<<mark<<endl;
+out<<"    mov AH,09"<<endl;
+out<<"    int 21H"<<endl;
+
+}
 }
 //scanf语句转换
-void scanf_asm(ofstream &out, string dsf)
+void scanf_asm(ofstream &out, string dsf,string mark)
 {
+	if(mark=="%d")
+	{
+
 	out << "    MOV AH,01" << endl;
 	out << "    INT 21H" << endl;
-	out << "    mov "+dsf+"" << ",AL" << endl;
-	out << "    sub " + dsf + "" << ",48" << endl;
-
+	out << "    mov " <<dsf<< ",AL" << endl;
+    out << "    sub " <<dsf<< ",48" << endl;
+   }
+   else if(mark=="%c")
+   {
+	out << "    MOV AH,01" << endl;
+	out << "    INT 21H" << endl;
+	out << "    mov " <<dsf<< ",AL" << endl;
+  }
+    
+    out <<"     mov AH,02"<<endl;
+    out <<"     mov DL,0aH"<<endl;
+    out <<"     INT 21H"<<endl;
 }
 //if语句转换
 void if_asm(ofstream &out,string dst,string dsc,string mark,string step)
@@ -832,6 +879,9 @@ void if_asm(ofstream &out,string dst,string dsc,string mark,string step)
 	else
 	{
 		cout<<"暂不支持其他条件判断"<<endl;
+		getchar();
+		getchar();
+
 		exit(14);
 	}
 }
@@ -840,12 +890,15 @@ void while_asm(ofstream &out,string dst,string dsc,string mark,string step)
 	out<<"    mov AL,"<<dst<<endl;
 	out<<"    CMP AL,"<<dsc<<endl;
 	if(mark == ">")
-		out<<"    JL "<<step<<endl;//有符号大于则跳转 
+		out<<"    JNG "<<step<<endl;//如果条件满足则运行循环体，否则才需要跳转，因此命令恰好是相反的。 
 	else if(mark == "<")
-		out<<"    JG "<<step<<endl;//有符号小于则跳转 
+		out<<"    JNL "<<step<<endl;//小于则跳转 
 	else
 	{
 		cout<<"暂不支持其他条件判断"<<endl;
+		getchar();
+		getchar();
+
 		exit(15);
 	}
 }
@@ -913,7 +966,7 @@ void create_asm(string file)
 		}
 		else if (it->op == "s")
 		{
-			scanf_asm(wfile, it->dsf);
+			scanf_asm(wfile, it->dsf,it->mark);
 		}
 		//跳转语句
 		else if(it->op == "jmp")
@@ -933,6 +986,11 @@ void create_asm(string file)
 		else
 		{
 			cout<<"编译器暂不支持该语法操作"<<endl;
+			getchar();
+			getchar();
+		    getchar();
+		    getchar();
+
 			exit(17);
 		}
 	}
